@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 //import 'dart:io';
 
+import 'package:demo/Widgets/thingspeak.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 //import 'package:file/file.dart';
@@ -41,49 +42,193 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Map<String, dynamic>? thingSpeakData;
+
+  Future<void> fetchData() async {
+    try {
+      final data = await fetchDataFromThingSpeak('2388247', 'OWELSEN5P6UA68M8');
+      setState(() {
+        thingSpeakData = data;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  String greetingMessage() {
+    var hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Good Morning';
+    }
+    if (hour < 17) {
+      return 'Good Afternoon';
+    }
+    return 'Good Evening';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Crop Disease Classifier'),
+        backgroundColor: Colors.blue,
+        title: Text(
+          'Crop Disease Classifier',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+            fontSize: 23,
+          ),
+        ),
       ),
-      body: _loading
-          ? Container(
-              alignment: Alignment.center,
-              child: CircularProgressIndicator(),
-            )
-          : Container(
-              width: MediaQuery.of(context).size.width,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _image == null ? Container() : Image.file(_image!),
-                  SizedBox(
-                    height: 20,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(
+              height: 20,
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.only(left: 15.0),
+              child: FittedBox(
+                child: Text(
+                  greetingMessage(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 28,
+                    color: Colors.indigo,
                   ),
-                  _outputs != null
-                      ? Text(
-                          "${_outputs![0]["label"]}"
-                              .replaceAll(RegExp(r'(0-9)'), ''),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20.0,
-                            background: Paint()..color = Colors.white,
-                          ),
-                        )
-                      : Container()
-                ],
+                ),
+                //size: 25,
               ),
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: getImage,
-        child: Icon(Icons.image),
+            //color: Color.fromRGBO(68, 190, 255, 0.8)
+            Container(
+              child: thingSpeakData == null
+                  ? CircularProgressIndicator()
+                  : Text('Data: ${thingSpeakData.toString()}'),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 35, vertical: 40),
+              child: Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.all(50),
+                decoration: BoxDecoration(
+                  color: Colors.indigo,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      child: Center(
+                        child: _loading == true
+                            ? null //show nothing if no picture selected
+                            : Container(
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      height:
+                                          MediaQuery.of(context).size.width *
+                                              0.5,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.5,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(30),
+                                        child: _image != null
+                                            ? Image.file(
+                                                _image!,
+                                                fit: BoxFit.fill,
+                                              )
+                                            : Center(
+                                                child: Text(
+                                                  'No image selected', // Show a message when no image is selected
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                ),
+                                              ),
+                                      ),
+                                    ),
+                                    Divider(
+                                      height: 25,
+                                      thickness: 1,
+                                    ),
+                                    // ignore: unnecessary_null_comparison
+                                    _outputs != null
+                                        ? Text(
+                                            'This is: ${_outputs![0]['label']}',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          )
+                                        : Container(),
+                                    Divider(
+                                      height: 25,
+                                      thickness: 1,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                      ),
+                    ),
+                    Container(
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                            onTap: pickCamera,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width - 200,
+                              alignment: Alignment.center,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 17),
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Text(
+                                'Take A Photo',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 30),
+                          GestureDetector(
+                            onTap: getGalleryImage,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width - 200,
+                              alignment: Alignment.center,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 17),
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Text(
+                                'Pick From Gallery',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  getImage() async {
+  getGalleryImage() async {
     ImagePicker _picker = ImagePicker();
     var pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     //print(pickedFile);
@@ -94,6 +239,17 @@ class _HomePageState extends State<HomePage> {
     });
     classifyImage(_image!);
     //print(_image!);
+  }
+
+  pickCamera() async {
+    ImagePicker _picker = ImagePicker();
+    var image = await _picker.pickImage(source: ImageSource.camera);
+    if (image == null) return null;
+
+    setState(() {
+      _image = File(image.path);
+    });
+    classifyImage(_image!);
   }
 
   classifyImage(File _image) async {
