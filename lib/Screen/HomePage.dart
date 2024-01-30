@@ -1,12 +1,15 @@
 import 'dart:async';
+
 import 'dart:io';
 //import 'dart:io';
 
+import 'package:demo/Screen/Tp_sub.dart';
 import 'package:demo/Widgets/thingspeak.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 //import 'package:file/file.dart';
 import 'package:tflite/tflite.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   //const HomePage({super.key});
@@ -27,6 +30,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List? _outputs;
   File? _image;
+
   //final _picker = ImagePicker();
   bool _loading = false;
 
@@ -102,126 +106,127 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             //color: Color.fromRGBO(68, 190, 255, 0.8)
+            TpSub("0", "0"),
             Container(
-              child: thingSpeakData == null
-                  ? CircularProgressIndicator()
-                  : Text('Data: ${thingSpeakData.toString()}'),
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 35, vertical: 40),
-              child: Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.all(50),
-                decoration: BoxDecoration(
-                  color: Colors.indigo,
-                  borderRadius: BorderRadius.circular(30),
+                // child: thingSpeakData == null
+                //     ? CircularProgressIndicator()
+                //     : tp.TpSub("0", "0"),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      child: Center(
-                        child: _loading == true
-                            ? null //show nothing if no picture selected
-                            : Container(
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      height:
-                                          MediaQuery.of(context).size.width *
-                                              0.5,
-                                      width: MediaQuery.of(context).size.width *
-                                          0.5,
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(30),
-                                        child: _image != null
-                                            ? Image.file(
-                                                _image!,
-                                                fit: BoxFit.fill,
-                                              )
-                                            : Center(
-                                                child: Text(
-                                                  'No image selected', // Show a message when no image is selected
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.w400,
-                                                  ),
-                                                ),
-                                              ),
-                                      ),
-                                    ),
-                                    Divider(
-                                      height: 25,
-                                      thickness: 1,
-                                    ),
-                                    // ignore: unnecessary_null_comparison
-                                    _outputs != null
-                                        ? Text(
-                                            'This is: ${_outputs![0]['label']}',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                          )
-                                        : Container(),
-                                    Divider(
-                                      height: 25,
-                                      thickness: 1,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                      ),
-                    ),
-                    Container(
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            onTap: pickCamera,
-                            child: Container(
-                              width: MediaQuery.of(context).size.width - 200,
-                              alignment: Alignment.center,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 17),
-                              decoration: BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: Text(
-                                'Take A Photo',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 30),
-                          GestureDetector(
-                            onTap: getGalleryImage,
-                            child: Container(
-                              width: MediaQuery.of(context).size.width - 200,
-                              alignment: Alignment.center,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 17),
-                              decoration: BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: Text(
-                                'Pick From Gallery',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            // Container(
+            //   padding: EdgeInsets.symmetric(horizontal: 35, vertical: 40),
+            //   child: Container(
+            //     alignment: Alignment.center,
+            //     padding: EdgeInsets.all(50),
+            //     decoration: BoxDecoration(
+            //       color: Colors.indigo,
+            //       borderRadius: BorderRadius.circular(30),
+            //     ),
+            //     child: Column(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       children: [
+            //         Container(
+            //           child: Center(
+            //             child: _loading == true
+            //                 ? null //show nothing if no picture selected
+            //                 : Container(
+            //                     child: Column(
+            //                       children: [
+            //                         Container(
+            //                           height:
+            //                               MediaQuery.of(context).size.width *
+            //                                   0.5,
+            //                           width: MediaQuery.of(context).size.width *
+            //                               0.5,
+            //                           child: ClipRRect(
+            //                             borderRadius: BorderRadius.circular(30),
+            //                             child: _image != null
+            //                                 ? Image.file(
+            //                                     _image!,
+            //                                     fit: BoxFit.fill,
+            //                                   )
+            //                                 : const Center(
+            //                                     child: Text(
+            //                                       'No image selected', // Show a message when no image is selected
+            //                                       style: TextStyle(
+            //                                         color: Colors.white,
+            //                                         fontSize: 18,
+            //                                         fontWeight: FontWeight.w400,
+            //                                       ),
+            //                                     ),
+            //                                   ),
+            //                           ),
+            //                         ),
+            //                         Divider(
+            //                           height: 25,
+            //                           thickness: 1,
+            //                         ),
+            //                         // ignore: unnecessary_null_comparison
+            //                         _outputs != null
+            //                             ? Text(
+            //                                 'This is: ${_outputs![0]['label']}',
+            //                                 style: TextStyle(
+            //                                   color: Colors.white,
+            //                                   fontSize: 18,
+            //                                   fontWeight: FontWeight.w400,
+            //                                 ),
+            //                               )
+            //                             : Container(),
+            //                         Divider(
+            //                           height: 25,
+            //                           thickness: 1,
+            //                         ),
+            //                       ],
+            //                     ),
+            //                   ),
+            //           ),
+            //         ),
+            //         Container(
+            //           child: Column(
+            //             children: [
+            //               GestureDetector(
+            //                 onTap: pickCamera,
+            //                 child: Container(
+            //                   width: MediaQuery.of(context).size.width - 200,
+            //                   alignment: Alignment.center,
+            //                   padding: EdgeInsets.symmetric(
+            //                       horizontal: 24, vertical: 17),
+            //                   decoration: BoxDecoration(
+            //                     color: Colors.blue,
+            //                     borderRadius: BorderRadius.circular(15),
+            //                   ),
+            //                   child: Text(
+            //                     'Take A Photo',
+            //                     style: TextStyle(
+            //                         color: Colors.white, fontSize: 16),
+            //                   ),
+            //                 ),
+            //               ),
+            //               SizedBox(height: 30),
+            //               GestureDetector(
+            //                 onTap: getGalleryImage,
+            //                 child: Container(
+            //                   width: MediaQuery.of(context).size.width - 200,
+            //                   alignment: Alignment.center,
+            //                   padding: EdgeInsets.symmetric(
+            //                       horizontal: 24, vertical: 17),
+            //                   decoration: BoxDecoration(
+            //                     color: Colors.blue,
+            //                     borderRadius: BorderRadius.circular(15),
+            //                   ),
+            //                   child: Text(
+            //                     'Pick From Gallery',
+            //                     style: TextStyle(
+            //                         color: Colors.white, fontSize: 16),
+            //                   ),
+            //                 ),
+            //               ),
+            //             ],
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
