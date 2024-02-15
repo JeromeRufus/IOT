@@ -1,4 +1,7 @@
 import 'package:demo/Screen/HomePage.dart';
+import 'package:demo/Screen/classification.dart';
+import 'package:demo/Screen/control_pump.dart';
+import 'package:demo/Screen/tabscreen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -18,7 +21,14 @@ class MyApp extends StatelessWidget {
         //backgroundColor: Color(0xFFFBFA),
         useMaterial3: true,
       ),
-      home: HomePage(),
+      // home: HomePage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => TabScreen(),
+        HomePage.routeName: (context) => HomePage(),
+        ImageAnalyze.routName: (context) => ImageAnalyze(),
+        ControlPump.routeName: (context) => ControlPump()
+      },
     );
   }
 }

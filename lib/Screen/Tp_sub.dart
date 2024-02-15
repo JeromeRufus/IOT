@@ -30,22 +30,23 @@ class _TpSubState extends State<TpSub> {
   // String? humid;
 
   Future<void> _getDht() async {
-    var url = Uri.parse(
-        "https://api.thingspeak.com/channels/2388247/feeds.json?api_key=OWELSEN5P6UA68M8&results=2");
     while (true) {
-      var result = await http.get(url);
-      Map<String, dynamic> feeds = jsonDecode(result.body);
-      Map<String, dynamic> fields = feeds["feeds"][0];
-      setState(() {
-        widget.temp = fields["field1"];
-      });
-      print(widget.temp);
-      setState(() {
-        widget.humid = fields["field2"];
-      });
-
-      print(widget.humid);
-      //sleep(Duration(seconds: 5));
+      await Future.delayed(Duration(seconds: 5));
+      var url = Uri.parse(
+          "https://api.thingspeak.com/channels/2388247/feeds.json?api_key=OWELSEN5P6UA68M8&results=2");
+      while (true) {
+        var result = await http.get(url);
+        Map<String, dynamic> feeds = jsonDecode(result.body);
+        Map<String, dynamic> fields = feeds["feeds"][0];
+        setState(() {
+          widget.temp = fields["field1"];
+          widget.humid = fields["field2"];
+          _tpData = getChartData();
+        });
+        print(widget.temp);
+        print(widget.humid);
+        //sleep(Duration(seconds: 5));
+      }
     }
   }
 
@@ -60,16 +61,28 @@ class _TpSubState extends State<TpSub> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: SfCircularChart(
-        series: <CircularSeries>[
-          RadialBarSeries<TpData, String>(
-            dataSource: _tpData,
-            xValueMapper: (TpData df, _) => df.label,
-            yValueMapper: (TpData df, _) => df.cdata,
-            dataLabelSettings: DataLabelSettings(isVisible: true),
-            enableTooltip: true,
+      child: Card(
+        margin: EdgeInsets.symmetric(horizontal: 30.0, vertical: 20),
+        child: SfCircularChart(
+          legend: Legend(
+            isVisible: true,
+            alignment: ChartAlignment.near,
+            overflowMode: LegendItemOverflowMode.scroll,
           ),
-        ],
+          series: <CircularSeries>[
+            RadialBarSeries<TpData, String>(
+              cornerStyle: CornerStyle.bothCurve,
+              //radius: '45%',
+              dataSource: _tpData,
+              xValueMapper: (TpData df, _) => df.label,
+              yValueMapper: (TpData df, _) => df.cdata,
+              dataLabelSettings: DataLabelSettings(isVisible: true),
+              enableTooltip: true,
+              animationDuration: 10,
+              //radius: '50%',
+            ),
+          ],
+        ),
       ),
     );
   }
